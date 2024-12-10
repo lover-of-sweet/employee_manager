@@ -1,0 +1,12 @@
+body {
+    /* background-image: url('01.jpg');
+    background-size: cover; */
+    background: rgb(252,252,252);
+    background: linear-gradient(90deg, rgba(252,252,252,1) 23%, rgba(229,231,232,1) 65%, rgba(210,211,212,1) 100%);
+    flex-grow: 1;
+}
+
+footer {
+    /* Чтобы footer не уменьшался */
+    flex-shrink: 0;
+  }

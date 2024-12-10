@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Изменение карточки сотрудника
+{% endblock title %}
+
+{% block content %}
+    <h1 class="my-5">Изменение карточки сотрудника</h1>
+    <div class="container">
+        <form id="add-employee-form" class='row g-3 align-items-center'>
+            <div class="col mb-5">
+                <label for="courses" class="form-label">ФИО</label>
+                <input class="col-form-label" type="text" id="lastname" placeholder="Фамилия" value="{{data_employee.lastname}}">
+                <input class="col-form-label" type="text" id="firstname" placeholder="Имя" value="{{data_employee.firstname}}">
+                <input class="col-form-label" type="text" id="patronymic" placeholder="Отчетсво" value="{{data_employee.patronymic}}">
+            </div>
+            <div class="col mb-3">
+                <select id="sex-name" class="form-select" name="select">
+                    <option value="мужской" {% if data_employee.sex == "мужской" %}selected{% endif %}>мужской</option>
+                    <option value="женский" {% if data_employee.sex == "женский" %}selected{% endif %}>женский</option>
+                </select>
+            </div>
+            <div class='col mb-5'>
+                <label for="courses" class="form-label">Возраст</label>
+                <input type="text" class="col-form-label" id="age-name" placeholder="Возраст" value="{{data_employee.age}}">
+            </div>
+            <div class='col mb-3'>
+                <select id="position-post" class="form-select" name="select">
+                    {% for val in data_post %}
+                    <option value="{{val.post}}" data-id="{{val.id}}" {% if data_employee.post == val.post %}selected{% endif %}>{{val.post}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col mb-3">
+                <button type="submit" id="update" data-id="{{data_employee.id}}" class='btn btn-success'>Изменить</button>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+
+{% block domready %}
+document.getElementById('update').addEventListener('click', function(e) {
+
+    const url = '/manager/employee_update/'
+    var option = {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin'
+}
+
+    e.preventDefault();
+    var updateButton = this;
+
+    var lastname = document.getElementById("lastname").value;
+    var firstname = document.getElementById("firstname").value;
+    var patronymic = document.getElementById("patronymic").value;
+    var sex = document.getElementById("sex-name").value;
+    var age = parseInt(document.getElementById("age-name").value);
+    var post = document.getElementById("position-post");
+
+    var formData = new FormData();
+    formData.append('lastname', lastname);
+    formData.append('firstname', firstname);
+    formData.append('patronymic', patronymic);
+    formData.append('sex', sex);
+    formData.append('age', age);
+    formData.append('post', post.options[post.selectedIndex].dataset.id);
+    option['body'] = formData;
+    console.log(option)
+
+
+    console.log(formData)
+
+    fetch(url, option)
+    .then(response => response.json())
+    .then(data => {
+            var bodyToast = document.querySelector(".toast-body");
+            bodyToast.innerHTML = `${data['message']}`
+            const toastLiveExample = document.getElementById('liveToast');
+            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+            toastBootstrap.show();
+    })
+})
+{% endblock domready %}

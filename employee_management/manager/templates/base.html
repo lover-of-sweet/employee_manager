@@ -1,0 +1,64 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock title %}</title>
+    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="{% static "js/bootstrap.bundle.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "css/static.css" %}">
+</head>
+<body>
+    <div class="navbar sticky-top navbar-expand-lg bg-body-tertiary">
+        <img src="{% static "image/02.png" %}" alt="" width="50" srcset="" class="mx-3">
+        <a href="/manager/positions/" class="btn">
+            Должности
+        </a>
+        <a href="/manager/employees_list/" class="btn">
+            Список сотрудников
+        </a>
+    </div>
+    <div class="container text-center body">
+        {% block content %}
+        {% endblock content %}
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto">Уведомление</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div class="toast-body">
+            
+          </div>
+        </div>
+    </div>
+    <script src="{% static "js/js.cookie.min.js" %}"></script>
+    <!-- {% comment %} <script src="{% static "js/script.js" %}" defer></script> {% endcomment %} -->
+    <script defer>
+        const csrftoken = Cookies.get('csrftoken');
+        console.log(csrftoken)
+        document.addEventListener('DOMContentLoaded', (event) => {
+            // DOM загружена
+            {% block domready %}
+            {% endblock %}
+        })
+    </script>
+</body>
+<div class="container">
+    <footer class="d-flex navbar-fixed-bottom flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+      <div class="col-md-4 d-flex align-items-center">
+        <a href="/" class="mb-3 me-2 mb-md-0 text-body-secondary text-decoration-none lh-1">
+          <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"></use></svg>
+        </a>
+        <span class="mb-3 mb-md-0 text-body-secondary">© 2024 Чернышев Александр</span>
+      </div>
+  
+      <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+        <li class="ms-3"><a class="text-body-secondary" href="#"><img src="{% static "image/github.svg" %}" alt="triangle with all three sides equal" height="24px" width="24px"/></a></li>
+        <li class="ms-3"><a class="text-body-secondary" href="#"><img src="{% static "image/telegram.svg" %}" alt="triangle with all three sides equal" height="24px" width="24px"/></a></li>
+        <li class="ms-3"><a class="text-body-secondary" href="#"><img src="{% static "image/vk.svg" %}" alt="triangle with all three sides equal" height="24px" width="24px"/></a></li>
+      </ul>
+    </footer>
+  </div>
+</html>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Изменение карточки должности
+{% endblock title %}
+
+{% block content %}
+    <h1 class="my-5">Изменение карточки должности</h1>
+    <div class="container">
+        <form id="add-position-form" class="row g-3 align-items-center">
+            <div class="col mb-5">
+                <label class="form-label" for="courses">Категория должности</label>
+                <input class="col-form-label" type="text" id="position-name" placeholder="Название должности" value="{{data.post}}">
+            </div>  
+            <div class="col m-5">  
+                <select class="form-select" id="position-category" name="select">
+                    <option value="руководитель" {% if data.category == "руководитель" %}selected{% endif %}>руководитель</option>
+                    <option value="специалист" {% if data.category == "специалист" %}selected{% endif %}>специалист</option>
+                    <option value="служащий" {% if data.category == "служащий" %}selected{% endif %}>служащий</option>
+                    <option value="рабочий" {% if data.category == "рабочий" %}selected{% endif %}>рабочий</option>
+                </select>
+            </div>
+            <div class="col m-5"> 
+                <button class="btn btn-success" type="submit" id="update" data-id="{{data.id}}">Изменить</button>
+            </div>
+            </form>
+    </div>
+{% endblock content %}
+
+{% block domready %}
+document.getElementById('update').addEventListener('click', function(e) {
+
+    const url = '/manager/position_update/'
+    var option = {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin'
+}
+
+    e.preventDefault();
+    var updateButton = this;
+    console.log(updateButton.dataset.id)
+
+    var post = document.getElementById("position-name").value;
+    var categ = document.getElementById("position-category").value;
+
+    var formData = new FormData();
+    formData.append('post', post);
+    formData.append('category', categ);
+    formData.append('id', updateButton.dataset.id);
+    option['body'] = formData;
+    console.log(formData)
+    fetch(url, option)
+    .then(response => response.json())
+    .then(data => {
+        var bodyToast = document.querySelector(".toast-body");
+            bodyToast.innerHTML = `${data['message']}`
+            const toastLiveExample = document.getElementById('liveToast');
+            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+            toastBootstrap.show();
+    })
+})
+{% endblock domready %}

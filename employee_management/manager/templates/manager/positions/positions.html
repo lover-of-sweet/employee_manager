@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Должности
+{% endblock title %}
+
+{% block content %}
+<h1 class="my-5">Должности</h1>
+<div class='container'></div>
+<div class='container'>
+<form id="add-position-form" class="row g-3 align-items-center">
+    {% comment %} <div class=""> {% endcomment %}
+        <div class="col mb-5">
+            <label for="courses" class="form-label">Категория должности</label>
+            <input class="col-form-label" type="text" id="position-name" placeholder="Название должности">
+        </div>   
+        <div class="col mb-3"> 
+            <select id="position-category" class="form-select" name="select">
+                <option value="руководитель">руководитель</option>
+                <option value="специалист">специалист</option>
+                <option value="служащий">служащий</option>
+                <option value="рабочий">рабочий</option>
+            </select>
+        </div>
+        <div class="col mb-3"> 
+            <button class="btn btn-success" type="submit" id="add">Добавить</button>
+        </div>
+    {% comment %} </div> {% endcomment %}
+</form>
+</div>
+
+<script>
+    function position() {
+    const positionsUrl = '/manager/positions_json/';
+    fetch(positionsUrl)
+    .then(response => response.json())
+    .then(positions => {
+        const positionsContainer = document.getElementsByClassName('container')[1];
+        while (positionsContainer.firstChild) {
+            positionsContainer.removeChild(positionsContainer.firstChild);
+          }
+        positions.forEach(position => {
+                const card = document.createElement('div');
+                card.className = 'card m-5 border-dark';
+                card.dataset.id = position.id
+
+                const row = document.createElement('div');
+                row.className = 'row mx-0';
+
+                const colPost = document.createElement('div');
+                colPost.className = 'col my-3';
+
+                const colCategory = document.createElement('div');
+                colCategory.className = 'col my-3';
+
+                const postConst = document.createElement('p');
+                postConst.textContent = 'Должность'
+
+                const postItem = document.createElement('p');
+                postItem.textContent = position.post;
+
+                const categoryConst = document.createElement('p');
+                categoryConst.textContent = 'Категория должности';
+
+                const categoryItem = document.createElement('p');
+                categoryItem.textContent = position.category;
+
+                const linkButton = document.createElement('a');
+                linkButton.textContent = "Изменить";
+                linkButton.href = `/manager/position_view/${position.id}`; 
+                linkButton.className = 'btn btn-primary';
+
+                const close = document.createElement('button');
+                close.textContent = "Удалить"
+                close.className = 'btn btn-danger delete'
+                close.dataset.id = position.id
+                close.type = 'button'
+                close.addEventListener('click', function(e){
+                    e.preventDefault()
+                    const csrftoken = Cookies.get('csrftoken')
+
+                    const url = '/manager/delete_position/'
+                    var option = {
+                    method: 'POST',
+                    headers: {'X-CSRFToken': csrftoken},
+                    mode: 'same-origin'
+                }
+
+                    var deleteButton = this;
+
+                    var formData = new FormData();
+                    formData.append('id', deleteButton.dataset.id);
+                    option['body'] = formData;
+
+                    fetch(url, option)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data)
+                        if (data['status'] === 'ok') {
+                            var thisCard = deleteButton.closest('.card')
+                            positionsContainer.removeChild(thisCard)
+                        }
+                    })
+
+                })
+
+                colPost.appendChild(postConst);
+                colPost.appendChild(categoryConst);
+                colCategory.appendChild(postItem);
+                colCategory.appendChild(categoryItem);
+
+
+                row.appendChild(colPost);
+                row.appendChild(colCategory);
+                row.appendChild(linkButton);  // Append the link button
+                row.appendChild(close);
+
+                card.appendChild(row);
+                positionsContainer.appendChild(card);
+            });
+        });
+    }
+    position()
+</script>
+{% endblock content %}
+
+{% block domready %}
+document.getElementById('add').addEventListener('click', function(e) {
+
+    const url = '/manager/add_position/'
+    var option = {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin'
+}
+
+    e.preventDefault();
+
+    var post = document.getElementById("position-name").value;
+    var categ = document.getElementById("position-category").value;
+
+    var formData = new FormData();
+    formData.append('post', post);
+    formData.append('category', categ);
+    option['body'] = formData;
+
+    fetch(url, option)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        if (data['status'] === 'ok') {
+            position()
+        } else {
+            var bodyToast = document.querySelector(".toast-body");
+            bodyToast.innerHTML = `${data['message']}`
+            const toastLiveExample = document.getElementById('liveToast');
+            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+            toastBootstrap.show();
+        }
+    })
+})
+{% endblock domready %}

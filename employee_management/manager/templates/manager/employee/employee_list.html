@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Список сотрудников
+{% endblock title %}
+
+{% block content %}
+<h1 class="my-5">Список сотрудников</h1>
+<div class='container'></div>
+<form id="add-employee-form" class='row g-3 align-items-center'>
+    <div class="col mb-5">
+        <label for="courses" class="form-label">ФИО</label>
+        <input class="col-form-label" type="text" id="lastname" placeholder="Фамилия" required />
+        <div class="invalid-feedback">
+            Please choose a username.
+          </div>
+        <input class="col-form-label" type="text" id="firstname" placeholder="Имя" required>
+        <input class="col-form-label" type="text" id="patronymic" placeholder="Отчетсво">
+
+    </div>
+    <div class="col mb-3">
+        <select id="sex-name" name="select" class="form-select">
+            <option value="мужской">мужской</option>
+            <option value="женский">женский</option>
+        </select>
+    </div>
+    <div class="col mb-5">
+        <label for="courses" class="form-label">Возраст</label>
+        <input type="text" class="col-form-label" id="age-name" placeholder="Возраст" required>
+    </div>
+    <div class="col mb-3">
+        <select id="position-post" class="form-select" name="select">
+            {% for val in data %}
+            <option value="{{val.post}}" data-id="{{val.id}}">{{val.post}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col mb-3">
+        <button type="submit" id="add" class="btn btn-success">Добавить</button>
+    </div>
+</form>
+
+<script>
+    function position() {
+    const employeeUrl = '/manager/employees/';
+    fetch(employeeUrl)
+    .then(response => response.json())
+    .then(employees => {
+        const employeesContainer = document.getElementsByClassName('container')[1];
+        while (employeesContainer.firstChild) {
+            employeesContainer.removeChild(employeesContainer.firstChild);
+          }
+          employees.forEach(employee => {
+                const card = document.createElement('div');
+                card.className = 'card m-5 border-dark';
+                card.dataset.id = employee.id;
+
+                const row = document.createElement('div');
+                row.className = 'row mx-0';
+
+                const colFio = document.createElement('div');
+                colFio.className = 'col my-3 align-items-center';
+
+                const colSex = document.createElement('div');
+                colSex.className = 'col my-3 align-items-center';
+
+                const colAge = document.createElement('div');
+                colAge.className = 'col my-3 align-items-center';
+
+                const colPost = document.createElement('div');
+                colPost.className = 'col my-3 align-items-center';
+
+                const colCategory = document.createElement('div');
+                colCategory.className = 'col my-3 align-items-center';
+
+                const postConst = document.createElement('p');
+                postConst.textContent = 'Должность'
+
+                const postItem = document.createElement('p');
+                postItem.textContent = employee.post;
+
+                const categoryConst = document.createElement('p');
+                categoryConst.textContent = 'Категория должности';
+
+                const categoryItem = document.createElement('p');
+                categoryItem.textContent = employee.category;
+
+                const fioConst = document.createElement('p');
+                fioConst.textContent = 'ФИО';
+
+                const fioItem = document.createElement('p');
+                fioItem.textContent = employee.lastName + " " + employee.firstName + " " + employee.patronymic;
+
+                const sexConst = document.createElement('p');
+                sexConst.textContent = 'Пол';
+
+                const sexItem = document.createElement('p');
+                sexItem.textContent = employee.sex;
+
+                const ageConst = document.createElement('p');
+                ageConst.textContent = 'Возраст';
+
+                const ageItem = document.createElement('p');
+                ageItem.textContent = employee.age;
+
+                const linkButton = document.createElement('a');
+                linkButton.textContent = "Изменить";
+                linkButton.href = `/manager/employee_view/${employee.id}`; 
+                linkButton.className = 'btn btn-primary';
+
+                const close = document.createElement('button');
+                close.textContent = "Удалить"
+                close.className = 'btn btn-danger delete'
+                close.dataset.id = employee.id
+                close.type = 'button'
+                close.addEventListener('click', function(e){
+                    e.preventDefault();
+                    const csrftoken = Cookies.get('csrftoken')
+                    
+                    const url = '/manager/delete_employee/'
+                    var option = {
+                    method: 'POST',
+                    headers: {'X-CSRFToken': csrftoken},
+                    mode: 'same-origin'
+                }
+            
+                    var deleteButton = this;
+            
+                    var formData = new FormData();
+                    formData.append('id', deleteButton.dataset.id);
+                    option['body'] = formData;
+            
+                    fetch(url, option)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data['status'] === 'ok') {
+                            var thisCard = deleteButton.closest('.card')
+                            employeesContainer.removeChild(thisCard)
+                        }
+                    })
+            
+                })
+
+
+                colFio.appendChild(fioConst);
+                colFio.appendChild(fioItem);
+                colSex.appendChild(sexConst);
+                colSex.appendChild(sexItem);
+                colAge.appendChild(ageConst);
+                colAge.appendChild(ageItem);
+                colPost.appendChild(postConst);
+                colPost.appendChild(postItem);
+                colCategory.appendChild(categoryConst);
+                colCategory.appendChild(categoryItem);
+
+                row.appendChild(colFio);
+                row.appendChild(colSex);
+                row.appendChild(colAge);
+                row.appendChild(colPost);
+                row.appendChild(colCategory);
+                row.appendChild(linkButton);  // Append the link button
+                row.appendChild(close);
+
+                card.appendChild(row);
+                employeesContainer.appendChild(card);
+            });
+        });
+    }
+    position()
+</script>
+{% endblock content %}
+
+{% block domready %}
+document.getElementById('add').addEventListener('click', function(e) {
+    e.preventDefault();
+
+    const url = '/manager/add_employee/'
+    var option = {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin'
+}
+
+    
+
+    var lastname = document.getElementById("lastname").value;
+    var firstname = document.getElementById("firstname").value;
+    var patronymic = document.getElementById("patronymic").value;
+    var sex = document.getElementById("sex-name").value;
+    var age = parseInt(document.getElementById("age-name").value);
+    var post = document.getElementById("position-post");
+
+    var formData = new FormData();
+    formData.append('lastname', lastname);
+    formData.append('firstname', firstname);
+    formData.append('patronymic', patronymic);
+    formData.append('sex', sex);
+    formData.append('age', age);
+    formData.append('post', post.options[post.selectedIndex].dataset.id);
+    option['body'] = formData;
+    console.log(option)
+
+    fetch(url, option)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        if (data['status'] === 'ok') {
+            position()
+        } else {
+            var bodyToast = document.querySelector(".toast-body");
+            bodyToast.innerHTML = `${data['message']}`
+            const toastLiveExample = document.getElementById('liveToast');
+            const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+            toastBootstrap.show();
+        }
+    })
+})
+{% endblock domready %}
