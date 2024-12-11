@@ -1,0 +1,24 @@
+services:
+  db:
+    build: ./postgres
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_USER=admin
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - 4432:5432
+    networks:
+      - default
+  backend:
+    build: ./python
+    restart: always
+    depends_on: 
+    - db
+    command: bash -c 'python3 manage.py runserver 0.0.0.0:8000'
+    ports:
+      - 8000:8000
+    volumes:
+      - ./employee_management:/employee_management/

@@ -76,9 +76,9 @@ def position_update(request):
 
 def employees(request):
     with connection.cursor() as cursor:
-        cursor.execute("select * from employees e join positions p on e.position_id = p.id;")
+        cursor.execute("select e.id, last_name, first_name, patronymic, sex, age, post, category from employees e join positions p on e.position_id = p.id;")
         employees = cursor.fetchall()
-    data = [{'id': e[0], 'lastName': e[1], 'firstName': e[2], 'patronymic': e[3], 'sex': e[4], 'age': e[5], 'post': e[8], 'category': e[9]} for e in employees]
+    data = [{'id': e[0], 'lastName': e[1], 'firstName': e[2], 'patronymic': e[3], 'sex': e[4], 'age': e[5], 'post': e[6], 'category': e[7]} for e in employees]
     return JsonResponse(data, safe=False)
 
 @csrf_exempt
