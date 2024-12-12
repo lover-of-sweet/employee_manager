@@ -65,6 +65,7 @@ document.getElementById('update').addEventListener('click', function(e) {
     formData.append('sex', sex);
     formData.append('age', age);
     formData.append('post', post.options[post.selectedIndex].dataset.id);
+    formData.append('id', updateButton.dataset.id);
     option['body'] = formData;
     console.log(option)
 

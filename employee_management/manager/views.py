@@ -116,7 +116,7 @@ def delete_employee(request):
 def employee_update(request):
     if request.method == "POST":
         lastname = request.POST.get('lastname')
-        firstname = request.POST.get('fifirstnameo')
+        firstname = request.POST.get('firstname')
         patronymic = request.POST.get('patronymic')
         if lastname == '' or firstname == '' or patronymic == '':
             return JsonResponse({'status':'error', "message": 'Неверно введено ФИО'})
@@ -130,14 +130,14 @@ def employee_update(request):
         position_id = request.POST.get('post')
         id = request.POST.get('id')
         with connection.cursor() as cursor:
-            cursor.execute("""UPDATE employees 
+            cursor.execute("""UPDATE employees as e
                            SET last_name = (%s),
                            first_name = (%s),
                            patronymic = (%s),
-                            sex = (%s) ,
+                            sex = (%s),
                            age = (%s),
                            position_id = (%s)
-                           WHERE employees.id=(%s)""", (lastname, firstname, patronymic, sex, age, position_id, id))
+                           WHERE e.id=(%s)""", (lastname, firstname, patronymic, sex, age, position_id, id))
             return JsonResponse({'status':'ok', "message": 'Успешно!'})
     return JsonResponse({'status': 'error'})
 

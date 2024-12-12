@@ -19,6 +19,8 @@ services:
     - db
     command: bash -c 'python3 manage.py runserver 0.0.0.0:8000'
     ports:
-      - 8000:8000
+      - 9000:8000
     volumes:
       - ./employee_management:/employee_management/
+    networks:
+      - default
